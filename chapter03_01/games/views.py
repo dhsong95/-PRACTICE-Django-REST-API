@@ -1,9 +1,12 @@
 from django.shortcuts import render
+from django.contrib.auth.models import User
 from rest_framework.generics import GenericAPIView, RetrieveUpdateDestroyAPIView, ListCreateAPIView
 from rest_framework.reverse import reverse
 from rest_framework.response import Response
-from .serializers import GameCategorySerializer, GameSerializer, PlayerSerializer, PlayerScoreSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from .serializers import GameCategorySerializer, GameSerializer, PlayerSerializer, PlayerScoreSerializer, UserSerializer
 from .models import GameCategory, Game, Player, PlayerScore
+from .permissions import IsOwnerOrReadOnly
 
 
 # Create your views here.
@@ -16,6 +19,7 @@ class APIRoot(GenericAPIView):
             'game-categories': reverse(GameCategoryList.name, request=request),
             'games': reverse(GameList.name, request=request),
             'player-scores': reverse(PlayerScoreList.name, request=request),
+            'users': reverse(UserList.name, request=request),
         })
 
 
@@ -35,12 +39,23 @@ class GameList(ListCreateAPIView):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
     name = 'game-list'
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+    ]
+
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 
 class GameDetail(RetrieveUpdateDestroyAPIView):
     queryset = Game.objects.all()
     serializer_class = GameSerializer
     name = 'game-detail'
+    permission_classes = [
+        IsAuthenticatedOrReadOnly,
+        IsOwnerOrReadOnly,
+    ]
 
 
 class PlayerList(ListCreateAPIView):
@@ -65,3 +80,15 @@ class PlayerScoreDetail(RetrieveUpdateDestroyAPIView):
     queryset = PlayerScore.objects.all()
     serializer_class = PlayerScoreSerializer
     name = 'playerscore-detail'
+
+
+class UserList(ListCreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    name = 'user-list'
+
+
+class UserDetail(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    name = 'user-detail'
