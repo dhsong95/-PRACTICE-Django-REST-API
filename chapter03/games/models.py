@@ -52,4 +52,3 @@ class PlayerScore(models.Model):
 
     class Meta:
         ordering = ('-score', )
-
