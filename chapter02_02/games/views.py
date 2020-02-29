@@ -15,7 +15,7 @@ class APIRoot(GenericAPIView):
             'players': reverse(PlayerList.name, request=request),
             'game-categories': reverse(GameCategoryList.name, request=request),
             'games': reverse(GameList.name, request=request),
-            'scores': reverse(PlayerScoreList.name, request=request)
+            'player-scores': reverse(PlayerScoreList.name, request=request)
         })
 
 
